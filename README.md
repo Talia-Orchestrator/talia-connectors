@@ -40,6 +40,6 @@ URLs, or machine-specific paths.
 Each package directory has `talia-extension.json` metadata and `connector.json`.
 Connector package payloads are declarative and have no install-time execution.
 
-Repository: https://github.com/Talia-orchestator/talia-connectors
+Repository: https://github.com/Talia-Orchestrator/talia-connectors
 
 Run npm test to validate ArtCraft packages, generic templates, and credential-free examples. Pull requests use the same secrets-free check.
