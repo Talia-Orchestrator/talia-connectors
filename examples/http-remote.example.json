@@ -1,0 +1,11 @@
+{
+  "display_name": "Il mio server MCP remoto",
+  "auth_mode": "none",
+  "transport": {
+    "kind": "streamable-http",
+    "url": "https://mcp.example.invalid/mcp",
+    "headers": {
+      "Authorization": "Bearer INSERIRE_SOLO_NELLA_PROPRIA_CONFIGURAZIONE"
+    }
+  }
+}

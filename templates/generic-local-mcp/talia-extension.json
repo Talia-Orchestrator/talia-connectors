@@ -1,0 +1,9 @@
+{
+  "id": "community/local-mcp",
+  "kind": "connector",
+  "version": "1.0.0",
+  "name": "Generic Local MCP",
+  "description": "A portable template for a user-configured local stdio MCP server.",
+  "publisher": "community",
+  "license": "MIT"
+}

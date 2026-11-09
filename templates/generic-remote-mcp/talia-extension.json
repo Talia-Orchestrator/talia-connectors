@@ -1,0 +1,9 @@
+{
+  "id": "community/remote-mcp",
+  "kind": "connector",
+  "version": "1.0.0",
+  "name": "Generic Remote MCP",
+  "description": "A portable template for a user-configured remote Streamable HTTP MCP server.",
+  "publisher": "community",
+  "license": "MIT"
+}

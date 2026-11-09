@@ -1,0 +1,10 @@
+{
+  "name": "talia-connectors",
+  "version": "0.1.0",
+  "description": "Public Talia connectors resource packages",
+  "license": "MIT",
+  "scripts": {
+    "validate": "node scripts/validate-packages.cjs",
+    "test": "npm run validate && node --test tests/packages.test.cjs"
+  }
+}

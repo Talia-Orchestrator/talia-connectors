@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "template": {
+    "id": "community/local-mcp",
+    "display_name": "Generic local MCP server",
+    "transport_kind": "stdio",
+    "description_en": "Connect to a local MCP server after the user provides its executable path.",
+    "documentation_url": "https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#stdio",
+    "command_hint": "example-mcp",
+    "args": ["mcp"]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "display_name": "Il mio server MCP locale",
+  "auth_mode": "none",
+  "transport": {
+    "kind": "stdio",
+    "command": "/percorso/assoluto/al/server-mcp",
+    "args": [],
+    "env": {
+      "SERVICE_TOKEN": "INSERIRE_SOLO_NELLA_PROPRIA_CONFIGURAZIONE"
+    }
+  }
+}

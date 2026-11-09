@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "template": {
+    "id": "community/remote-mcp",
+    "display_name": "Generic remote MCP server",
+    "transport_kind": "streamable-http",
+    "description_en": "Connect to an HTTPS Streamable HTTP MCP server after the user provides its URL and authentication.",
+    "documentation_url": "https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http",
+    "url_hint": "https://example.org/mcp"
+  }
+}
