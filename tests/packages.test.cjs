@@ -42,7 +42,9 @@ test('generic stdio and local/remote HTTP examples remain placeholders, not inst
 
 test('generic connector templates pack as installable v2 artifacts without core-specific data', () => {
   const templates = path.join(root, 'templates');
-  const packer = require(path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs'));
+  const packerPath = process.env.TALIA_CATALOG_PACKER
+    || path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs');
+  const packer = require(packerPath);
   const schema = JSON.parse(fs.readFileSync(path.join(root, 'schemas', 'connector-template.schema.json'), 'utf8'));
   assert.deepEqual(schema.required, ['schemaVersion', 'template']);
   assert.equal(schema.additionalProperties, false);
