@@ -13,8 +13,8 @@ const expected = [
 
 test('all 16 ArtCraft references use the declarative connector package shape', () => {
   const directories = fs.readdirSync(packageRoot).sort();
-  assert.deepEqual(directories, expected);
-  for (const directory of directories) {
+  assert.deepEqual(directories, [...expected, 'solidcraft'].sort());
+  for (const directory of expected) {
     const dir = path.join(packageRoot, directory);
     const metadata = JSON.parse(fs.readFileSync(path.join(dir, 'talia-extension.json'), 'utf8'));
     const connector = JSON.parse(fs.readFileSync(path.join(dir, 'connector.json'), 'utf8'));
@@ -64,4 +64,31 @@ test('generic connector templates pack as installable v2 artifacts without core-
     assert.equal(Object.hasOwn(connector.template, 'headers'), false);
     assert.ok(pkg.files.LICENSE && pkg.files.NOTICE && pkg.files['README.md']);
   }
+});
+
+
+test('SolidCraft uses the official stdio command without broad filesystem grants or execution hooks', () => {
+  const dir = path.join(packageRoot, 'solidcraft');
+  const metadata = JSON.parse(fs.readFileSync(path.join(dir, 'talia-extension.json'), 'utf8'));
+  const connector = JSON.parse(fs.readFileSync(path.join(dir, 'connector.json'), 'utf8'));
+  assert.equal(metadata.id, 'talia-connectors/solidcraft');
+  assert.equal(metadata.kind, 'connector');
+  assert.equal(metadata.version, '1.0.0');
+  assert.equal(connector.schemaVersion, 1);
+  assert.equal(connector.template.id, metadata.id);
+  assert.equal(connector.template.transport_kind, 'stdio');
+  assert.equal(connector.template.command_hint, 'solidcraft-cli');
+  assert.deepEqual(connector.template.args, ['mcp']);
+  assert.equal(connector.template.documentation_url, 'https://docs.solidcraft.io/guide/mcp.html');
+  assert.deepEqual(Object.keys(connector).sort(), ['schemaVersion', 'template']);
+  assert.doesNotMatch(JSON.stringify(connector), /allow-any-path|--token|--connect|setup|"env"|"headers"|\/Users\//);
+  for (const file of ['README.md', 'LICENSE', 'NOTICE']) assert.ok(fs.statSync(path.join(dir, file)).isFile());
+  const packerPath = process.env.TALIA_CATALOG_PACKER
+    || path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs');
+  const built = require(packerPath).buildCatalogV3([dir]);
+  const index = JSON.parse(built.catalogBytes.toString('utf8'));
+  assert.equal(index.packages[0].id, metadata.id);
+  const pkg = JSON.parse(built.artifacts[0].bytes.toString('utf8')).packages[0];
+  assert.deepEqual(JSON.parse(pkg.files['connector.json']), connector);
+  assert.ok(pkg.files.LICENSE && pkg.files.NOTICE && pkg.files['README.md']);
 });

@@ -20,6 +20,13 @@ The authoritative preset data is mirrored from:
 Before release, compare package data against that source and update both in the
 same change when the app contract changes.
 
+## SolidCraft MCP
+
+`packages/solidcraft/` usa il template stdio pubblico (`talia-connectors/solidcraft`)
+con `solidcraft-cli mcp`, secondo la documentazione ufficiale di SolidCraft.
+Non è una risorsa ArtCraft, non richiede modifiche al core e non installa il CLI.
+Configurazione, limiti di accesso e provenienza sono nel README del pacchetto.
+
 ## Generic templates and examples
 
 `templates/generic-local-mcp/` and `templates/generic-remote-mcp/` are installable
