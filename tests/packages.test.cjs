@@ -13,7 +13,7 @@ const expected = [
 
 test('all 16 ArtCraft references use the declarative connector package shape', () => {
   const directories = fs.readdirSync(packageRoot).sort();
-  assert.deepEqual(directories, [...expected, 'solidcraft'].sort());
+  assert.deepEqual(directories, [...expected, 'solidcraft', 'wecom', 'feishu', 'dingtalk'].sort());
   for (const directory of expected) {
     const dir = path.join(packageRoot, directory);
     const metadata = JSON.parse(fs.readFileSync(path.join(dir, 'talia-extension.json'), 'utf8'));
@@ -28,6 +28,21 @@ test('all 16 ArtCraft references use the declarative connector package shape', (
     for (const file of ['README.md', 'LICENSE', 'NOTICE']) assert.ok(fs.statSync(path.join(dir, file)).isFile());
     assert.doesNotMatch(JSON.stringify(connector), /\/Users\/|\/home\/[^/]+\//i);
     assert.doesNotMatch(JSON.stringify(connector), /(?:token|secret|api[_-]?key)\s*[:=]\s*[^"\s]{8,}/i);
+  }
+});
+
+test('local CLI references point to one built-in setup per provider', () => {
+  const packerPath = process.env.TALIA_CATALOG_PACKER
+    || path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs');
+  const directories = ['wecom', 'feishu', 'dingtalk'].map(name => path.join(packageRoot, name));
+  const built = require(packerPath).buildCatalogV3(directories);
+  assert.equal(JSON.parse(built.catalogBytes.toString('utf8')).packages.length, 3);
+  for (const directory of directories) {
+    const slug = path.basename(directory);
+    const connector = JSON.parse(fs.readFileSync(path.join(directory, 'connector.json'), 'utf8'));
+    assert.deepEqual(connector.catalog_reference, { id: `talia-connectors/${slug}`, catalog_id: slug });
+    assert.equal(Object.hasOwn(connector, 'template'), false);
+    assert.equal(Object.hasOwn(connector, 'preset'), false);
   }
 });
 
