@@ -4,6 +4,7 @@
 
 - ArtCraft presets mirror the desktop's curated `ArtcraftMcpPreset` definitions. Keep `connector.json` schema version 1, preserve official documentation references, and do not add user paths, tokens, environment values, or server instances.
 - Generic local and remote templates use `{ "schemaVersion": 1, "template": ... }`. Follow `schemas/connector-template.schema.json`; stdio templates require `command_hint` and `args`, while Streamable HTTP templates require an HTTPS `url_hint`. These are hints shown to the user, not configured or started servers.
+- Built-in CLI references use `{ "schemaVersion": 1, "catalog_reference": { "id": "talia-connectors/<provider>", "catalog_id": "<provider>" } }`. Only `wecom`, `feishu` and `dingtalk` are accepted by the public packer and Talia 0.10.0. Do not add a CLI reference without coordinated host support and a matching minimum host version.
 
 Use the matching starter under `templates/` when adding a generic template. Keep packages declarative: discovery and installation must not start MCP processes, write connection settings, or execute package code. Store inclusion is an explicit selection; adding a package here alone does not publish it.
 

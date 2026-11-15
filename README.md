@@ -20,6 +20,14 @@ The authoritative preset data is mirrored from:
 Before release, compare package data against that source and update both in the
 same change when the app contract changes.
 
+## CLI locali integrati
+
+`packages/wecom/`, `packages/feishu/` e `packages/dingtalk/` contengono
+riferimenti alla configurazione CLI già presente in Talia 0.10.0. Feishu e
+Lark condividono un solo pacchetto. L'installazione salva metadati; l'utente
+apre poi la configurazione e autorizza il proprio account. Questi pacchetti
+non sono template stdio MCP autonomi e non includono comandi eseguibili.
+
 ## SolidCraft MCP
 
 `packages/solidcraft/` usa il template stdio pubblico (`talia-connectors/solidcraft`)
