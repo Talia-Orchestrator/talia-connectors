@@ -58,3 +58,13 @@ Connector package payloads are declarative and have no install-time execution.
 Repository: https://github.com/Talia-Orchestrator/talia-connectors
 
 Run npm test to validate ArtCraft packages, generic templates, and credential-free examples. Pull requests use the same secrets-free check.
+
+## GitHub Code Search
+
+`packages/github-code-search/` usa il template remoto (`talia/github-code-search`)
+verso il server MCP ufficiale di GitHub (`https://api.githubcopilot.com/mcp/`).
+Il token personale è un campo segreto che l'host inserisce nell'header
+`Authorization: Bearer `; il pacchetto non contiene credenziali. Toolset e
+modalità sola lettura sono campi facoltativi (`X-MCP-Toolsets`, `X-MCP-Readonly`).
+L'endpoint remoto richiede un token: la ricerca senza login GitHub non è coperta
+da questo pacchetto.

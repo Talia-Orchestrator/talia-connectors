@@ -15,16 +15,46 @@
         "display_name": {"type": "string", "minLength": 1, "maxLength": 256},
         "transport_kind": {"enum": ["stdio", "streamable-http"]},
         "description_en": {"type": "string", "maxLength": 4000},
+        "description_it": {"type": "string", "maxLength": 4000},
         "documentation_url": {"type": "string", "format": "uri", "pattern": "^https://"},
         "command_hint": {"type": "string", "maxLength": 512},
         "args": {"type": "array", "maxItems": 64, "items": {"type": "string", "maxLength": 512}},
-        "url_hint": {"type": "string", "format": "uri", "pattern": "^https://"}
+        "url_hint": {"type": "string", "format": "uri", "pattern": "^https://"},
+        "auth": {"enum": ["none", "oauth"]},
+        "url_editable": {"type": "boolean"},
+        "fields": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "input", "label_en", "label_it"],
+            "properties": {
+              "key": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,39}$"},
+              "input": {"enum": ["text", "secret", "path"]},
+              "required": {"type": "boolean"},
+              "label_en": {"type": "string", "minLength": 1, "maxLength": 160},
+              "label_it": {"type": "string", "minLength": 1, "maxLength": 160},
+              "help_en": {"type": "string", "maxLength": 500},
+              "help_it": {"type": "string", "maxLength": 500},
+              "env": {"type": "string", "pattern": "^[A-Z_][A-Z0-9_]{0,127}$"},
+              "header": {"type": "string", "pattern": "^[A-Za-z0-9-]{1,128}$"},
+              "header_prefix": {"type": "string", "minLength": 1, "maxLength": 32},
+              "flag": {"type": "string", "pattern": "^--[a-z0-9][a-z0-9-]{0,63}$"}
+            },
+            "oneOf": [
+              {"required": ["env"], "not": {"anyOf": [{"required": ["header"]}, {"required": ["flag"]}]}},
+              {"required": ["header"], "not": {"anyOf": [{"required": ["env"]}, {"required": ["flag"]}]}},
+              {"required": ["flag"], "not": {"anyOf": [{"required": ["env"]}, {"required": ["header"]}]}}
+            ]
+          }
+        }
       },
       "oneOf": [
         {
           "properties": {"transport_kind": {"const": "stdio"}},
           "required": ["command_hint", "args"],
-          "not": {"required": ["url_hint"]}
+          "not": {"anyOf": [{"required": ["url_hint"]}, {"required": ["auth"]}, {"required": ["url_editable"]}]}
         },
         {
           "properties": {"transport_kind": {"const": "streamable-http"}},

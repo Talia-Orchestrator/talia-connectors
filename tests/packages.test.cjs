@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { resolvePackerPath } = require('../scripts/resolve-packer.cjs');
 const root = path.resolve(__dirname, '..');
 const packageRoot = path.join(root, 'packages');
 const expected = [
@@ -13,7 +14,7 @@ const expected = [
 
 test('all 16 ArtCraft references use the declarative connector package shape', () => {
   const directories = fs.readdirSync(packageRoot).sort();
-  assert.deepEqual(directories, [...expected, 'solidcraft', 'wecom', 'feishu', 'dingtalk'].sort());
+  assert.deepEqual(directories, [...expected, 'solidcraft', 'wecom', 'feishu', 'dingtalk', 'github-code-search'].sort());
   for (const directory of expected) {
     const dir = path.join(packageRoot, directory);
     const metadata = JSON.parse(fs.readFileSync(path.join(dir, 'talia-extension.json'), 'utf8'));
@@ -32,8 +33,7 @@ test('all 16 ArtCraft references use the declarative connector package shape', (
 });
 
 test('local CLI references point to one built-in setup per provider', () => {
-  const packerPath = process.env.TALIA_CATALOG_PACKER
-    || path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs');
+  const packerPath = resolvePackerPath(root);
   const directories = ['wecom', 'feishu', 'dingtalk'].map(name => path.join(packageRoot, name));
   const built = require(packerPath).buildCatalogV3(directories);
   assert.equal(JSON.parse(built.catalogBytes.toString('utf8')).packages.length, 3);
@@ -57,8 +57,7 @@ test('generic stdio and local/remote HTTP examples remain placeholders, not inst
 
 test('generic connector templates pack as installable v2 artifacts without core-specific data', () => {
   const templates = path.join(root, 'templates');
-  const packerPath = process.env.TALIA_CATALOG_PACKER
-    || path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs');
+  const packerPath = resolvePackerPath(root);
   const packer = require(packerPath);
   const schema = JSON.parse(fs.readFileSync(path.join(root, 'schemas', 'connector-template.schema.json'), 'utf8'));
   assert.deepEqual(schema.required, ['schemaVersion', 'template']);
@@ -98,12 +97,43 @@ test('SolidCraft uses the official stdio command without broad filesystem grants
   assert.deepEqual(Object.keys(connector).sort(), ['schemaVersion', 'template']);
   assert.doesNotMatch(JSON.stringify(connector), /allow-any-path|--token|--connect|setup|"env"|"headers"|\/Users\//);
   for (const file of ['README.md', 'LICENSE', 'NOTICE']) assert.ok(fs.statSync(path.join(dir, file)).isFile());
-  const packerPath = process.env.TALIA_CATALOG_PACKER
-    || path.resolve(root, '..', 'talia-store', 'tools', 'talia-catalog-pack.cjs');
+  const packerPath = resolvePackerPath(root);
   const built = require(packerPath).buildCatalogV3([dir]);
   const index = JSON.parse(built.catalogBytes.toString('utf8'));
   assert.equal(index.packages[0].id, metadata.id);
   const pkg = JSON.parse(built.artifacts[0].bytes.toString('utf8')).packages[0];
   assert.deepEqual(JSON.parse(pkg.files['connector.json']), connector);
   assert.ok(pkg.files.LICENSE && pkg.files.NOTICE && pkg.files['README.md']);
+});
+
+test('GitHub code search connector ships the official remote endpoint with a user-supplied token field', () => {
+  const dir = path.join(packageRoot, 'github-code-search');
+  const metadata = JSON.parse(fs.readFileSync(path.join(dir, 'talia-extension.json'), 'utf8'));
+  const connector = JSON.parse(fs.readFileSync(path.join(dir, 'connector.json'), 'utf8'));
+  assert.equal(metadata.id, 'talia/github-code-search');
+  assert.equal(metadata.kind, 'connector');
+  assert.equal(metadata.publisher, 'talia');
+  assert.equal(metadata.version, '1.0.0');
+  assert.equal(metadata.license, 'MIT');
+  assert.deepEqual(Object.keys(connector).sort(), ['schemaVersion', 'template']);
+  const template = connector.template;
+  assert.equal(template.id, metadata.id);
+  assert.equal(template.transport_kind, 'streamable-http');
+  assert.equal(template.url_hint, 'https://api.githubcopilot.com/mcp/');
+  assert.equal(template.command_hint, undefined);
+  assert.equal(template.args, undefined);
+  const token = template.fields.find(field => field.key === 'github_token');
+  assert.equal(token.input, 'secret');
+  assert.equal(token.required, true);
+  assert.equal(token.header, 'Authorization');
+  assert.equal(token.header_prefix, 'Bearer ');
+  assert.deepEqual(template.fields.map(field => field.header).sort(),
+    ['Authorization', 'X-MCP-Readonly', 'X-MCP-Toolsets']);
+  for (const field of template.fields) assert.ok(field.label_en && field.label_it);
+  assert.doesNotMatch(JSON.stringify(connector), /ghp_|github_pat_|\/Users\/|\/home\/[^/]+\//i);
+  for (const file of ['README.md', 'LICENSE', 'NOTICE']) assert.ok(fs.statSync(path.join(dir, file)).isFile());
+  const packerPath = resolvePackerPath(root);
+  const built = require(packerPath).buildCatalogV3([dir]);
+  const pkg = JSON.parse(built.artifacts[0].bytes.toString('utf8')).packages[0];
+  assert.deepEqual(JSON.parse(pkg.files['connector.json']), connector);
 });
